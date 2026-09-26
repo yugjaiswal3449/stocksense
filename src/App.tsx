@@ -2484,12 +2484,13 @@ function Analytics() {
     .sort((a, b) => b.value - a.value)
     .slice(0, 7);
   const colors = [
-    "#159a80",
-    "#1f6f65",
-    "#72c2b1",
-    "#86a8a0",
-    "#c2ddd7",
-    "#466f67",
+    "#0f9d7a",
+    "#3b82f6",
+    "#f59e0b",
+    "#8b5cf6",
+    "#ef5da8",
+    "#06b6d4",
+    "#64748b",
   ];
   return (
     <div className="page">
@@ -2557,7 +2558,14 @@ function Analytics() {
               <XAxis dataKey="name" />
               <YAxis tickFormatter={(v) => `₹${Math.round(v / 1000)}k`} />
               <Tooltip formatter={(v) => money.format(Number(v))} />
-              <Bar dataKey="value" fill="#159a80" radius={[5, 5, 0, 0]} />
+              <Bar dataKey="value" radius={[5, 5, 0, 0]}>
+                {byWarehouse.map((warehouse, i) => (
+                  <Cell
+                    key={warehouse.name}
+                    fill={colors[i % colors.length]}
+                  />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </article>
@@ -2574,7 +2582,14 @@ function Analytics() {
               <XAxis type="number" />
               <YAxis dataKey="name" type="category" width={120} />
               <Tooltip />
-              <Bar dataKey="value" fill="#2d7467" radius={[0, 5, 5, 0]} />
+              <Bar dataKey="value" radius={[0, 5, 5, 0]}>
+                {movers.map((product, i) => (
+                  <Cell
+                    key={product.name}
+                    fill={colors[i % colors.length]}
+                  />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </article>
