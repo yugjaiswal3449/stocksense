@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useMemo,
-  useState,
-  type FormEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import {
   Navigate,
   NavLink,
@@ -13,10 +7,10 @@ import {
   useLocation,
   useNavigate,
   useParams,
-} from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+} from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import {
   Area,
   AreaChart,
@@ -32,7 +26,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts";
+} from 'recharts'
 import {
   Activity,
   AlertTriangle,
@@ -69,72 +63,64 @@ import {
   Warehouse,
   X,
   type LucideIcon,
-} from "lucide-react";
-import { AppStore, useApp } from "./stores/AppStore";
-import type { Product, StockOperation } from "./types";
+} from 'lucide-react'
+import { AppStore, useApp } from './stores/AppStore'
+import type { Product, StockOperation } from './types'
 
-const money = new Intl.NumberFormat("en-IN", {
-  style: "currency",
-  currency: "INR",
+const money = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
   maximumFractionDigits: 0,
-});
-const number = new Intl.NumberFormat("en-US");
+})
+const number = new Intl.NumberFormat('en-US')
 const shortDate = (x: string) =>
-  new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date(x));
+  new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(x))
 const ago = (x: string) => {
-  const d = Math.max(
-    0,
-    Math.floor((Date.now() - new Date(x).getTime()) / 3600000),
-  );
-  return d < 1
-    ? "Just now"
-    : d < 24
-      ? `${d}h ago`
-      : `${Math.floor(d / 24)}d ago`;
-};
-const statusClass = (s: string) =>
-  `badge ${s.toLowerCase().replaceAll(" ", "-")}`;
+  const d = Math.max(0, Math.floor((Date.now() - new Date(x).getTime()) / 3600000))
+  return d < 1 ? 'Just now' : d < 24 ? `${d}h ago` : `${Math.floor(d / 24)}d ago`
+}
+const statusClass = (s: string) => `badge ${s.toLowerCase().replaceAll(' ', '-')}`
 const navGroups: { label: string; items: [string, LucideIcon, string][] }[] = [
   {
-    label: "Workspace",
+    label: 'Workspace',
     items: [
-      ["/", LayoutDashboard, "Overview"],
-      ["/products", Boxes, "Products"],
-      ["/categories", Layers3, "Categories"],
-      ["/stock", MapPin, "Stock by location"],
+      ['/', LayoutDashboard, 'Overview'],
+      ['/products', Boxes, 'Products'],
+      ['/categories', Layers3, 'Categories'],
+      ['/stock', MapPin, 'Stock by location'],
     ],
   },
   {
-    label: "Operations",
+    label: 'Operations',
     items: [
-      ["/receipts", ArrowDownToLine, "Receipts"],
-      ["/deliveries", ArrowUpFromLine, "Deliveries"],
-      ["/transfers", ArrowLeftRight, "Internal transfers"],
-      ["/adjustments", SlidersHorizontal, "Adjustments"],
+      ['/receipts', ArrowDownToLine, 'Receipts'],
+      ['/deliveries', ArrowUpFromLine, 'Deliveries'],
+      ['/transfers', ArrowLeftRight, 'Internal transfers'],
+      ['/adjustments', SlidersHorizontal, 'Adjustments'],
     ],
   },
   {
-    label: "History",
+    label: 'History',
     items: [
-      ["/ledger", ClipboardList, "Stock ledger"],
-      ["/moves", FileClock, "Move history"],
+      ['/ledger', ClipboardList, 'Stock ledger'],
+      ['/moves', FileClock, 'Move history'],
     ],
   },
   {
-    label: "Manage",
+    label: 'Manage',
     items: [
-      ["/warehouses", Warehouse, "Warehouses"],
-      ["/locations", MapPin, "Locations"],
-      ["/analytics", BarChart3, "Analytics"],
-      ["/notifications", Bell, "Notifications"],
-      ["/settings", Settings, "Settings"],
+      ['/warehouses', Warehouse, 'Warehouses'],
+      ['/locations', MapPin, 'Locations'],
+      ['/analytics', BarChart3, 'Analytics'],
+      ['/notifications', Bell, 'Notifications'],
+      ['/settings', Settings, 'Settings'],
     ],
   },
-];
+]
 
 function Modal({
   title,
@@ -142,41 +128,34 @@ function Modal({
   onClose,
   wide = false,
 }: {
-  title: string;
-  children: ReactNode;
-  onClose: () => void;
-  wide?: boolean;
+  title: string
+  children: ReactNode
+  onClose: () => void
+  wide?: boolean
 }) {
   useEffect(() => {
-    const fn = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", fn);
-    return () => document.removeEventListener("keydown", fn);
-  }, [onClose]);
+    const fn = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    document.addEventListener('keydown', fn)
+    return () => document.removeEventListener('keydown', fn)
+  }, [onClose])
   return (
-    <div
-      className="modal-backdrop"
-      onMouseDown={(e) => e.target === e.currentTarget && onClose()}
-    >
+    <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <section
-        className={`modal ${wide ? "wide" : ""}`}
+        className={`modal ${wide ? 'wide' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-label={title}
       >
         <header>
           <h2>{title}</h2>
-          <button
-            className="icon-button"
-            onClick={onClose}
-            aria-label="Close dialog"
-          >
+          <button className="icon-button" onClick={onClose} aria-label="Close dialog">
             <X />
           </button>
         </header>
         {children}
       </section>
     </div>
-  );
+  )
 }
 function Confirm({
   title,
@@ -184,10 +163,10 @@ function Confirm({
   onConfirm,
   onClose,
 }: {
-  title: string;
-  body: string;
-  onConfirm: () => void;
-  onClose: () => void;
+  title: string
+  body: string
+  onConfirm: () => void
+  onClose: () => void
 }) {
   return (
     <Modal title={title} onClose={onClose}>
@@ -201,42 +180,40 @@ function Confirm({
         <button
           className="button danger"
           onClick={() => {
-            onConfirm();
-            onClose();
+            onConfirm()
+            onClose()
           }}
         >
           Confirm
         </button>
       </footer>
     </Modal>
-  );
+  )
 }
 function Auth() {
-  const { authenticated, setAuthenticated } = useApp();
-  const nav = useNavigate();
-  const location = useLocation();
-  const initialMode = location.pathname.includes("signup")
-    ? "signup"
-    : location.pathname.includes("forgot")
-      ? "forgot"
-      : location.pathname.includes("reset")
-        ? "reset"
-        : "login";
-  const [mode, setMode] = useState<"login" | "signup" | "forgot" | "reset">(
-    initialMode,
-  );
-  const [error, setError] = useState("");
+  const { authenticated, setAuthenticated } = useApp()
+  const nav = useNavigate()
+  const location = useLocation()
+  const initialMode = location.pathname.includes('signup')
+    ? 'signup'
+    : location.pathname.includes('forgot')
+      ? 'forgot'
+      : location.pathname.includes('reset')
+        ? 'reset'
+        : 'login'
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>(initialMode)
+  const [error, setError] = useState('')
   const submit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    if (mode === "login" && fd.get("email") !== "admin@stocksense.demo") {
-      setError("Use the demo account shown below.");
-      return;
+    e.preventDefault()
+    const fd = new FormData(e.currentTarget)
+    if (mode === 'login' && fd.get('email') !== 'admin@stocksense.demo') {
+      setError('Use the demo account shown below.')
+      return
     }
-    setAuthenticated(true);
-    nav("/");
-  };
-  if (authenticated) return <Navigate to="/" replace />;
+    setAuthenticated(true)
+    nav('/')
+  }
+  if (authenticated) return <Navigate to="/" replace />
   return (
     <div className="auth-page">
       <div className="auth-brand">
@@ -245,66 +222,66 @@ function Auth() {
       <section className="auth-card">
         <p className="eyebrow">Inventory operations</p>
         <h1>
-          {mode === "login"
-            ? "Welcome back"
-            : mode === "signup"
-              ? "Create your account"
-              : mode === "forgot"
-                ? "Recover access"
-                : "Choose a new password"}
+          {mode === 'login'
+            ? 'Welcome back'
+            : mode === 'signup'
+              ? 'Create your account'
+              : mode === 'forgot'
+                ? 'Recover access'
+                : 'Choose a new password'}
         </h1>
         <p className="subtle">
-          {mode === "login"
-            ? "Sign in to manage inventory across your operation."
-            : "Demo mode keeps everything safely on this device."}
+          {mode === 'login'
+            ? 'Sign in to manage inventory across your operation.'
+            : 'Demo mode keeps everything safely on this device.'}
         </p>
         <form onSubmit={submit}>
-          {mode === "signup" && (
+          {mode === 'signup' && (
             <label>
               Full name
-              <input name="name" required placeholder="Alex Morgan" />
+              <input name="name" required placeholder="Adithri" />
             </label>
           )}
-          {mode !== "reset" && (
+          {mode !== 'reset' && (
             <label>
               Email
               <input
                 name="email"
                 type="email"
                 required
-                defaultValue={mode === "login" ? "admin@stocksense.demo" : ""}
+                defaultValue={mode === 'login' ? 'admin@stocksense.demo' : ''}
               />
             </label>
           )}
-          {mode !== "forgot" && (
+          {mode !== 'forgot' && (
             <label>
               Password
               <input
                 name="password"
                 type="password"
                 required
-                defaultValue={mode === "login" ? "demo123" : ""}
+                defaultValue={mode === 'login' ? 'demo123' : ''}
               />
             </label>
           )}
           {error && <p className="form-error">{error}</p>}
           <button className="button primary wide-button" type="submit">
-            {mode === "login"
-              ? "Sign in"
-              : mode === "signup"
-                ? "Create account"
-                : mode === "forgot"
-                  ? "Send reset link"
-                  : "Reset password"}
+            {mode === 'login'
+              ? 'Sign in'
+              : mode === 'signup'
+                ? 'Create account'
+                : mode === 'forgot'
+                  ? 'Send reset link'
+                  : 'Reset password'}
           </button>
         </form>
-        {mode === "login" && (
+        {mode === 'login' && (
           <>
             <button
               className="button secondary wide-button"
               onClick={() => {
-                setAuthenticated(true);
-                nav("/");
+                setAuthenticated(true)
+                nav('/')
               }}
             >
               Continue as Demo User
@@ -317,52 +294,46 @@ function Auth() {
           </>
         )}
         <div className="auth-links">
-          {mode !== "login" ? (
-            <button onClick={() => setMode("login")}>Back to sign in</button>
+          {mode !== 'login' ? (
+            <button onClick={() => setMode('login')}>Back to sign in</button>
           ) : (
             <>
-              <button onClick={() => setMode("signup")}>Create account</button>
-              <button onClick={() => setMode("forgot")}>
-                Forgot password?
-              </button>
+              <button onClick={() => setMode('signup')}>Create account</button>
+              <button onClick={() => setMode('forgot')}>Forgot password?</button>
             </>
           )}
         </div>
       </section>
-      <p className="auth-note">
-        Demo mode · No API keys required · Data persists locally
-      </p>
+      <p className="auth-note">Demo mode · No API keys required · Data persists locally</p>
     </div>
-  );
+  )
 }
 
 function Shell() {
-  const { data, setAuthenticated, toast, clearToast } = useApp();
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobile, setMobile] = useState(false);
-  const [palette, setPalette] = useState(false);
-  const [theme, setTheme] = useState(
-    localStorage.getItem("stocksense-theme") || "light",
-  );
-  const nav = useNavigate();
-  const unread = data.notifications.filter((n) => !n.read).length;
+  const { data, setAuthenticated, toast, clearToast } = useApp()
+  const [collapsed, setCollapsed] = useState(false)
+  const [mobile, setMobile] = useState(false)
+  const [palette, setPalette] = useState(false)
+  const [theme, setTheme] = useState(localStorage.getItem('stocksense-theme') || 'light')
+  const nav = useNavigate()
+  const unread = data.notifications.filter((n) => !n.read).length
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem("stocksense-theme", theme);
-  }, [theme]);
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem('stocksense-theme', theme)
+  }, [theme])
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setPalette(true);
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setPalette(true)
       }
-    };
-    document.addEventListener("keydown", fn);
-    return () => document.removeEventListener("keydown", fn);
-  }, []);
+    }
+    document.addEventListener('keydown', fn)
+    return () => document.removeEventListener('keydown', fn)
+  }, [])
   return (
-    <div className={`app ${collapsed ? "collapsed" : ""}`}>
-      <aside className={`sidebar ${mobile ? "mobile-open" : ""}`}>
+    <div className={`app ${collapsed ? 'collapsed' : ''}`}>
+      <aside className={`sidebar ${mobile ? 'mobile-open' : ''}`}>
         <div className="brand">
           <span className="brand-mark">S</span>
           <span className="brand-name">StockSense</span>
@@ -379,12 +350,7 @@ function Shell() {
             <div className="nav-group" key={g.label}>
               <p>{g.label}</p>
               {g.items.map(([href, Icon, label]) => (
-                <NavLink
-                  to={href}
-                  end={href === "/"}
-                  key={href}
-                  onClick={() => setMobile(false)}
-                >
+                <NavLink to={href} end={href === '/'} key={href} onClick={() => setMobile(false)}>
                   <Icon />
                   <span>{label}</span>
                 </NavLink>
@@ -394,9 +360,9 @@ function Shell() {
         </nav>
         <div className="sidebar-bottom">
           <NavLink to="/profile" className="profile">
-            <span className="avatar">AM</span>
+            <span className="avatar">A</span>
             <span>
-              <b>Alex Morgan</b>
+              <b>Adithri</b>
               <small>Administrator</small>
             </span>
           </NavLink>
@@ -434,27 +400,23 @@ function Shell() {
           </button>
           <button
             className="icon-button"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             aria-label="Toggle theme"
           >
-            {theme === "dark" ? <Sun /> : <Moon />}
+            {theme === 'dark' ? <Sun /> : <Moon />}
           </button>
           <button
             className="icon-button notification-button"
-            onClick={() => nav("/notifications")}
+            onClick={() => nav('/notifications')}
             aria-label={`${unread} unread notifications`}
           >
             <Bell />
             {unread > 0 && <i>{unread}</i>}
           </button>
-          <button className="avatar" onClick={() => nav("/profile")}>
-            AM
+          <button className="avatar" onClick={() => nav('/profile')}>
+            A
           </button>
-          <button
-            className="logout-link"
-            onClick={() => setAuthenticated(false)}
-            title="Log out"
-          >
+          <button className="logout-link" onClick={() => setAuthenticated(false)} title="Log out">
             Log out
           </button>
         </header>
@@ -467,10 +429,7 @@ function Shell() {
           <Route path="/receipts" element={<Operations type="Receipt" />} />
           <Route path="/deliveries" element={<Operations type="Delivery" />} />
           <Route path="/transfers" element={<Operations type="Transfer" />} />
-          <Route
-            path="/adjustments"
-            element={<Operations type="Adjustment" />}
-          />
+          <Route path="/adjustments" element={<Operations type="Adjustment" />} />
           <Route path="/ledger" element={<Ledger />} />
           <Route path="/moves" element={<MoveHistory />} />
           <Route path="/warehouses" element={<WarehousesPage />} />
@@ -482,23 +441,23 @@ function Shell() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {palette && <CommandPalette onClose={() => setPalette(false)} />}{" "}
+      {palette && <CommandPalette onClose={() => setPalette(false)} />}{' '}
       {toast && (
         <button className="toast" onClick={clearToast}>
           <Check /> {toast}
         </button>
       )}
     </div>
-  );
+  )
 }
 function PageHead({
   title,
   description,
   actions,
 }: {
-  title: string;
-  description: string;
-  actions?: ReactNode;
+  title: string
+  description: string
+  actions?: ReactNode
 }) {
   return (
     <section className="page-heading">
@@ -509,14 +468,14 @@ function PageHead({
       </div>
       <div className="heading-actions">{actions}</div>
     </section>
-  );
+  )
 }
 function Empty({
-  title = "Nothing here yet",
-  text = "Create a record to get started.",
+  title = 'Nothing here yet',
+  text = 'Create a record to get started.',
 }: {
-  title?: string;
-  text?: string;
+  title?: string
+  text?: string
 }) {
   return (
     <div className="empty">
@@ -524,41 +483,34 @@ function Empty({
       <h3>{title}</h3>
       <p>{text}</p>
     </div>
-  );
+  )
 }
 function CommandPalette({ onClose }: { onClose: () => void }) {
-  const { data } = useApp();
-  const nav = useNavigate();
-  const [q, setQ] = useState("");
+  const { data } = useApp()
+  const nav = useNavigate()
+  const [q, setQ] = useState('')
   const results = useMemo(() => {
-    if (!q.trim()) return [];
-    const s = q.toLowerCase();
+    if (!q.trim()) return []
+    const s = q.toLowerCase()
     return [
       ...data.products
-        .filter(
-          (p) =>
-            p.name.toLowerCase().includes(s) || p.sku.toLowerCase().includes(s),
-        )
+        .filter((p) => p.name.toLowerCase().includes(s) || p.sku.toLowerCase().includes(s))
         .map((p) => ({
           label: p.name,
           meta: p.sku,
           href: `/products/${p.id}`,
-          type: "Product",
+          type: 'Product',
         })),
       ...data.operations
-        .filter(
-          (o) =>
-            o.number.toLowerCase().includes(s) ||
-            o.party.toLowerCase().includes(s),
-        )
+        .filter((o) => o.number.toLowerCase().includes(s) || o.party.toLowerCase().includes(s))
         .map((o) => ({
           label: o.number,
           meta: o.party,
           href: `/${o.type.toLowerCase()}s`,
           type: o.type,
         })),
-    ].slice(0, 10);
-  }, [q, data]);
+    ].slice(0, 10)
+  }, [q, data])
   return (
     <Modal title="Search StockSense" onClose={onClose}>
       <div className="command-input">
@@ -571,23 +523,16 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
         />
       </div>
       <div className="command-results">
-        {!q && (
-          <p className="command-hint">
-            Start typing to search across the workspace.
-          </p>
-        )}
+        {!q && <p className="command-hint">Start typing to search across the workspace.</p>}
         {q && results.length === 0 && (
-          <Empty
-            title="No results"
-            text="Try a product name, SKU, or document number."
-          />
+          <Empty title="No results" text="Try a product name, SKU, or document number." />
         )}
         {results.map((r) => (
           <button
             key={`${r.type}-${r.label}`}
             onClick={() => {
-              nav(r.href);
-              onClose();
+              nav(r.href)
+              onClose()
             }}
           >
             <span className="result-icon">
@@ -604,89 +549,67 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
         ))}
       </div>
     </Modal>
-  );
+  )
 }
 
 function Overview() {
-  const { data } = useApp();
-  const nav = useNavigate();
+  const { data } = useApp()
+  const nav = useNavigate()
   const totals = useMemo(() => {
-    const units = data.inventory.reduce((s, i) => s + i.quantity, 0);
+    const units = data.inventory.reduce((s, i) => s + i.quantity, 0)
     const value = data.inventory.reduce(
-      (s, i) =>
-        s +
-        i.quantity *
-          (data.products.find((p) => p.id === i.productId)?.cost || 0),
+      (s, i) => s + i.quantity * (data.products.find((p) => p.id === i.productId)?.cost || 0),
       0,
-    );
+    )
     const low = data.products.filter((p) => {
       const qty = data.inventory
         .filter((i) => i.productId === p.id)
-        .reduce((s, i) => s + i.quantity - i.reserved, 0);
-      return qty > 0 && qty <= p.reorderLevel;
-    }).length;
+        .reduce((s, i) => s + i.quantity - i.reserved, 0)
+      return qty > 0 && qty <= p.reorderLevel
+    }).length
     const out = data.products.filter(
-      (p) =>
-        !data.inventory.some((i) => i.productId === p.id && i.quantity > 0),
-    ).length;
-    return { units, value, low, out };
-  }, [data]);
+      (p) => !data.inventory.some((i) => i.productId === p.id && i.quantity > 0),
+    ).length
+    return { units, value, low, out }
+  }, [data])
   const movement = useMemo(
     () =>
       Array.from({ length: 7 }, (_, i) => {
-        const day = new Date(Date.now() - (6 - i) * 86400000);
-        const same = (x: string) =>
-          new Date(x).toDateString() === day.toDateString();
+        const day = new Date(Date.now() - (6 - i) * 86400000)
+        const same = (x: string) => new Date(x).toDateString() === day.toDateString()
         return {
-          day: day.toLocaleDateString("en-US", { weekday: "short" }),
-          incoming: data.ledger
-            .filter((m) => same(m.date))
-            .reduce((s, m) => s + m.quantityIn, 0),
-          outgoing: data.ledger
-            .filter((m) => same(m.date))
-            .reduce((s, m) => s + m.quantityOut, 0),
-        };
+          day: day.toLocaleDateString('en-US', { weekday: 'short' }),
+          incoming: data.ledger.filter((m) => same(m.date)).reduce((s, m) => s + m.quantityIn, 0),
+          outgoing: data.ledger.filter((m) => same(m.date)).reduce((s, m) => s + m.quantityOut, 0),
+        }
       }),
     [data],
-  );
+  )
   return (
     <div className="page">
       <PageHead
-        title={`Good ${new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, Alex`}
+        title="Welcome back, Adithri"
         description="Here’s what’s moving across your operation today."
         actions={
-          <button className="button primary" onClick={() => nav("/receipts")}>
+          <button className="button primary" onClick={() => nav('/receipts')}>
             <PackageCheck /> New receipt
           </button>
         }
       />
       <section className="kpis">
-        {([
+        {(
           [
-            "Total products",
-            data.products.length,
-            "Across 6 categories",
-            Boxes,
-          ],
-          [
-            "Units in stock",
-            number.format(totals.units),
-            "Live available stock",
-            Package,
-          ],
-          [
-            "Inventory value",
-            money.format(totals.value),
-            "+8.2% this month",
-            Activity,
-          ],
-          [
-            "Needs attention",
-            totals.low + totals.out,
-            `${totals.low} low · ${totals.out} out`,
-            AlertTriangle,
-          ],
-        ] as [string, string | number, string, LucideIcon][]).map(([a, b, c, Icon]) => (
+            ['Total products', data.products.length, 'Across 6 categories', Boxes],
+            ['Units in stock', number.format(totals.units), 'Live available stock', Package],
+            ['Inventory value', money.format(totals.value), '+8.2% this month', Activity],
+            [
+              'Needs attention',
+              totals.low + totals.out,
+              `${totals.low} low · ${totals.out} out`,
+              AlertTriangle,
+            ],
+          ] as [string, string | number, string, LucideIcon][]
+        ).map(([a, b, c, Icon]) => (
           <article className="kpi" key={String(a)}>
             <span className="kpi-icon">
               <Icon />
@@ -704,10 +627,7 @@ function Overview() {
               <h2>Inventory movement</h2>
               <p>Incoming and outgoing units over 7 days</p>
             </div>
-            <button
-              className="button ghost small"
-              onClick={() => nav("/analytics")}
-            >
+            <button className="button ghost small" onClick={() => nav('/analytics')}>
               View analytics
             </button>
           </div>
@@ -756,19 +676,15 @@ function Overview() {
               <h2>Recent activity</h2>
               <p>Latest completed operations</p>
             </div>
-            <button className="text-button" onClick={() => nav("/moves")}>
+            <button className="text-button" onClick={() => nav('/moves')}>
               View all
             </button>
           </div>
           <div className="activity-list">
             {data.ledger.slice(0, 6).map((m) => {
-              const p = data.products.find((x) => x.id === m.productId);
+              const p = data.products.find((x) => x.id === m.productId)
               return (
-                <button
-                  className="activity-row"
-                  key={m.id}
-                  onClick={() => nav("/ledger")}
-                >
+                <button className="activity-row" key={m.id} onClick={() => nav('/ledger')}>
                   <span className={`activity-icon ${m.type.toLowerCase()}`}>
                     <ArrowLeftRight />
                   </span>
@@ -777,13 +693,12 @@ function Overview() {
                       {m.reference} · {m.type}
                     </b>
                     <small>
-                      {p?.name} ·{" "}
-                      {m.quantityIn ? `+${m.quantityIn}` : `−${m.quantityOut}`}
+                      {p?.name} · {m.quantityIn ? `+${m.quantityIn}` : `−${m.quantityOut}`}
                     </small>
                   </span>
                   <time>{ago(m.date)}</time>
                 </button>
-              );
+              )
             })}
           </div>
         </article>
@@ -794,10 +709,7 @@ function Overview() {
             <h2>Stock requiring attention</h2>
             <p>Items at or below their reorder threshold</p>
           </div>
-          <button
-            className="text-button"
-            onClick={() => nav("/products?filter=low")}
-          >
+          <button className="text-button" onClick={() => nav('/products?filter=low')}>
             Review products
           </button>
         </div>
@@ -820,19 +732,15 @@ function Overview() {
                     {p.sku} · Reorder at {p.reorderLevel}
                   </small>
                 </span>
-                <span
-                  className={statusClass(
-                    qty === 0 ? "Out of Stock" : "Low Stock",
-                  )}
-                >
-                  {qty === 0 ? "Out of stock" : "Low stock"}
+                <span className={statusClass(qty === 0 ? 'Out of Stock' : 'Low Stock')}>
+                  {qty === 0 ? 'Out of stock' : 'Low stock'}
                 </span>
               </button>
             ))}
         </div>
       </section>
     </div>
-  );
+  )
 }
 
 const productSchema = z.object({
@@ -847,16 +755,10 @@ const productSchema = z.object({
   warehouseId: z.string().min(1),
   locationId: z.string().min(1),
   description: z.string().optional(),
-});
-type ProductForm = z.infer<typeof productSchema>;
-function ProductDialog({
-  product,
-  onClose,
-}: {
-  product?: Product;
-  onClose: () => void;
-}) {
-  const { data, addProduct, updateProduct } = useApp();
+})
+type ProductForm = z.infer<typeof productSchema>
+function ProductDialog({ product, onClose }: { product?: Product; onClose: () => void }) {
+  const { data, addProduct, updateProduct } = useApp()
   const {
     register,
     handleSubmit,
@@ -872,7 +774,7 @@ function ProductDialog({
           locationId: data.locations[0].id,
         }
       : {
-          unit: "unit",
+          unit: 'unit',
           cost: 0,
           initialStock: 0,
           reorderLevel: 10,
@@ -880,8 +782,8 @@ function ProductDialog({
           locationId: data.locations[0].id,
           categoryId: data.categories[0].id,
         },
-  });
-  const wh = watch("warehouseId");
+  })
+  const wh = watch('warehouseId')
   const submit = (v: ProductForm) => {
     if (product)
       updateProduct({
@@ -894,31 +796,27 @@ function ProductDialog({
         price: v.price,
         reorderLevel: v.reorderLevel,
         description: v.description,
-      });
-    else addProduct(v);
-    onClose();
-  };
+      })
+    else addProduct(v)
+    onClose()
+  }
   return (
-    <Modal
-      title={product ? "Edit product" : "Add product"}
-      onClose={onClose}
-      wide
-    >
+    <Modal title={product ? 'Edit product' : 'Add product'} onClose={onClose} wide>
       <form onSubmit={handleSubmit(submit)}>
         <div className="modal-body form-grid">
           <label>
             Product name
-            <input {...register("name")} placeholder="e.g. Steel Rod" />
+            <input {...register('name')} placeholder="e.g. Steel Rod" />
             <em>{errors.name?.message}</em>
           </label>
           <label>
             SKU
-            <input {...register("sku")} placeholder="SS-1042" />
+            <input {...register('sku')} placeholder="SS-1042" />
             <em>{errors.sku?.message}</em>
           </label>
           <label>
             Category
-            <select {...register("categoryId")}>
+            <select {...register('categoryId')}>
               {data.categories.map((c) => (
                 <option value={c.id} key={c.id}>
                   {c.name}
@@ -928,7 +826,7 @@ function ProductDialog({
           </label>
           <label>
             Unit of measure
-            <select {...register("unit")}>
+            <select {...register('unit')}>
               <option>unit</option>
               <option>kg</option>
               <option>meter</option>
@@ -939,41 +837,27 @@ function ProductDialog({
           </label>
           <label>
             Cost price
-            <input
-              type="number"
-              step=".01"
-              {...register("cost", { valueAsNumber: true })}
-            />
+            <input type="number" step=".01" {...register('cost', { valueAsNumber: true })} />
           </label>
           <label>
             Selling price
-            <input
-              type="number"
-              step=".01"
-              {...register("price", { valueAsNumber: true })}
-            />
+            <input type="number" step=".01" {...register('price', { valueAsNumber: true })} />
           </label>
           <label>
             Reorder level
-            <input
-              type="number"
-              {...register("reorderLevel", { valueAsNumber: true })}
-            />
+            <input type="number" {...register('reorderLevel', { valueAsNumber: true })} />
           </label>
           {!product && (
             <>
               <label>
                 Initial stock
-                <input
-                  type="number"
-                  {...register("initialStock", { valueAsNumber: true })}
-                />
+                <input type="number" {...register('initialStock', { valueAsNumber: true })} />
               </label>
               <label>
                 Warehouse
-                <select {...register("warehouseId")}>
+                <select {...register('warehouseId')}>
                   {data.warehouses
-                    .filter((w) => w.status === "Active")
+                    .filter((w) => w.status === 'Active')
                     .map((w) => (
                       <option value={w.id} key={w.id}>
                         {w.name}
@@ -983,7 +867,7 @@ function ProductDialog({
               </label>
               <label>
                 Location
-                <select {...register("locationId")}>
+                <select {...register('locationId')}>
                   {data.locations
                     .filter((l) => l.warehouseId === wh)
                     .map((l) => (
@@ -997,7 +881,7 @@ function ProductDialog({
           )}
           <label className="full">
             Description
-            <textarea {...register("description")} rows={3} />
+            <textarea {...register('description')} rows={3} />
           </label>
         </div>
         <footer className="modal-actions">
@@ -1005,67 +889,61 @@ function ProductDialog({
             Cancel
           </button>
           <button className="button primary" type="submit">
-            {product ? "Save changes" : "Create product"}
+            {product ? 'Save changes' : 'Create product'}
           </button>
         </footer>
       </form>
     </Modal>
-  );
+  )
 }
 
 function Products() {
-  const { data, deleteProduct } = useApp();
-  const nav = useNavigate();
-  const [q, setQ] = useState("");
-  const [category, setCategory] = useState("all");
-  const [stock, setStock] = useState("all");
-  const [sort, setSort] = useState<"name" | "sku" | "quantity">("name");
-  const [page, setPage] = useState(1);
-  const [dialog, setDialog] = useState<Product | true | null>(null);
-  const [remove, setRemove] = useState<Product | null>(null);
+  const { data, deleteProduct } = useApp()
+  const nav = useNavigate()
+  const [q, setQ] = useState('')
+  const [category, setCategory] = useState('all')
+  const [stock, setStock] = useState('all')
+  const [sort, setSort] = useState<'name' | 'sku' | 'quantity'>('name')
+  const [page, setPage] = useState(1)
+  const [dialog, setDialog] = useState<Product | true | null>(null)
+  const [remove, setRemove] = useState<Product | null>(null)
   const rows = useMemo(
     () =>
       data.products
         .map((p) => {
-          const inv = data.inventory.filter((i) => i.productId === p.id);
-          const qty = inv.reduce((s, i) => s + i.quantity, 0);
-          const reserved = inv.reduce((s, i) => s + i.reserved, 0);
-          return { p, qty, reserved, available: qty - reserved };
+          const inv = data.inventory.filter((i) => i.productId === p.id)
+          const qty = inv.reduce((s, i) => s + i.quantity, 0)
+          const reserved = inv.reduce((s, i) => s + i.reserved, 0)
+          return { p, qty, reserved, available: qty - reserved }
         })
         .filter((x) =>
-          (
-            x.p.name +
-            x.p.sku +
-            data.categories.find((c) => c.id === x.p.categoryId)?.name
-          )
+          (x.p.name + x.p.sku + data.categories.find((c) => c.id === x.p.categoryId)?.name)
             .toLowerCase()
             .includes(q.toLowerCase()),
         )
-        .filter((x) => category === "all" || x.p.categoryId === category)
+        .filter((x) => category === 'all' || x.p.categoryId === category)
         .filter(
           (x) =>
-            stock === "all" ||
-            (stock === "out"
+            stock === 'all' ||
+            (stock === 'out'
               ? x.qty === 0
-              : stock === "low"
+              : stock === 'low'
                 ? x.qty > 0 && x.available <= x.p.reorderLevel
                 : x.available > x.p.reorderLevel),
         )
         .sort((a, b) =>
-          sort === "quantity"
-            ? a.qty - b.qty
-            : String(a.p[sort]).localeCompare(String(b.p[sort])),
+          sort === 'quantity' ? a.qty - b.qty : String(a.p[sort]).localeCompare(String(b.p[sort])),
         ),
     [data, q, category, stock, sort],
-  );
+  )
   const per = 10,
-    pages = Math.max(1, Math.ceil(rows.length / per));
-  useEffect(() => setPage(1), [q, category, stock]);
+    pages = Math.max(1, Math.ceil(rows.length / per))
+  useEffect(() => setPage(1), [q, category, stock])
   const exportCsv = () =>
     download(
-      "stocksense-products.csv",
+      'stocksense-products.csv',
       [
-        "Product,SKU,Category,On Hand,Reserved,Available,Value",
+        'Product,SKU,Category,On Hand,Reserved,Available,Value',
         ...rows.map((x) =>
           [
             x.p.name,
@@ -1075,11 +953,11 @@ function Products() {
             x.reserved,
             x.available,
             (x.qty * x.p.cost).toFixed(2),
-          ].join(","),
+          ].join(','),
         ),
-      ].join("\n"),
-      "text/csv",
-    );
+      ].join('\n'),
+      'text/csv',
+    )
   return (
     <div className="page">
       <PageHead
@@ -1119,21 +997,18 @@ function Products() {
           <option value="low">Low stock</option>
           <option value="out">Out of stock</option>
         </select>
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value as typeof sort)}
-        >
+        <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
           <option value="name">Sort: Name</option>
           <option value="sku">Sort: SKU</option>
           <option value="quantity">Sort: Quantity</option>
         </select>
-        {(q || category !== "all" || stock !== "all") && (
+        {(q || category !== 'all' || stock !== 'all') && (
           <button
             className="button ghost"
             onClick={() => {
-              setQ("");
-              setCategory("all");
-              setStock("all");
+              setQ('')
+              setCategory('all')
+              setStock('all')
             }}
           >
             <X /> Clear
@@ -1160,95 +1035,72 @@ function Products() {
               </tr>
             </thead>
             <tbody>
-              {rows
-                .slice((page - 1) * per, page * per)
-                .map(({ p, qty, reserved, available }) => (
-                  <tr key={p.id}>
-                    <td>
-                      <button
-                        className="product-cell"
-                        onClick={() => nav(`/products/${p.id}`)}
-                      >
-                        <span>{p.name.slice(0, 2).toUpperCase()}</span>
-                        <b>{p.name}</b>
-                      </button>
-                    </td>
-                    <td>
-                      <code>{p.sku}</code>
-                    </td>
-                    <td>
-                      {data.categories.find((c) => c.id === p.categoryId)?.name}
-                    </td>
-                    <td>{qty}</td>
-                    <td>{reserved}</td>
-                    <td>
-                      <b>{available}</b>
-                    </td>
-                    <td>{p.reorderLevel}</td>
-                    <td>
-                      <span
-                        className={statusClass(
-                          qty === 0
-                            ? "Out of Stock"
-                            : available <= p.reorderLevel
-                              ? "Low Stock"
-                              : "In Stock",
-                        )}
-                      >
-                        {qty === 0
-                          ? "Out of stock"
+              {rows.slice((page - 1) * per, page * per).map(({ p, qty, reserved, available }) => (
+                <tr key={p.id}>
+                  <td>
+                    <button className="product-cell" onClick={() => nav(`/products/${p.id}`)}>
+                      <span>{p.name.slice(0, 2).toUpperCase()}</span>
+                      <b>{p.name}</b>
+                    </button>
+                  </td>
+                  <td>
+                    <code>{p.sku}</code>
+                  </td>
+                  <td>{data.categories.find((c) => c.id === p.categoryId)?.name}</td>
+                  <td>{qty}</td>
+                  <td>{reserved}</td>
+                  <td>
+                    <b>{available}</b>
+                  </td>
+                  <td>{p.reorderLevel}</td>
+                  <td>
+                    <span
+                      className={statusClass(
+                        qty === 0
+                          ? 'Out of Stock'
                           : available <= p.reorderLevel
-                            ? "Low stock"
-                            : "In stock"}
-                      </span>
-                    </td>
-                    <td>{money.format(qty * p.cost)}</td>
-                    <td>
-                      <div className="row-actions">
-                        <button
-                          onClick={() => setDialog(p)}
-                          aria-label={`Edit ${p.name}`}
-                        >
-                          <SlidersHorizontal />
-                        </button>
-                        <button
-                          onClick={() => setRemove(p)}
-                          aria-label={`Delete ${p.name}`}
-                        >
-                          <Trash2 />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                            ? 'Low Stock'
+                            : 'In Stock',
+                      )}
+                    >
+                      {qty === 0
+                        ? 'Out of stock'
+                        : available <= p.reorderLevel
+                          ? 'Low stock'
+                          : 'In stock'}
+                    </span>
+                  </td>
+                  <td>{money.format(qty * p.cost)}</td>
+                  <td>
+                    <div className="row-actions">
+                      <button onClick={() => setDialog(p)} aria-label={`Edit ${p.name}`}>
+                        <SlidersHorizontal />
+                      </button>
+                      <button onClick={() => setRemove(p)} aria-label={`Delete ${p.name}`}>
+                        <Trash2 />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
         {rows.length === 0 ? (
-          <Empty
-            title="No matching products"
-            text="Clear the filters or add a new product."
-          />
+          <Empty title="No matching products" text="Clear the filters or add a new product." />
         ) : (
           <div className="pagination">
             <span>
-              Showing {(page - 1) * per + 1}–{Math.min(page * per, rows.length)}{" "}
-              of {rows.length}
+              Showing {(page - 1) * per + 1}–{Math.min(page * per, rows.length)} of {rows.length}
             </span>
             <div>
-              <button
-                disabled={page === 1}
-                onClick={() => setPage((x) => x - 1)}
-              >
+              <button disabled={page === 1} onClick={() => setPage((x) => x - 1)}>
                 <ChevronLeft />
               </button>
               <b>
                 {page} / {pages}
               </b>
-              <button
-                disabled={page === pages}
-                onClick={() => setPage((x) => x + 1)}
-              >
+              <button disabled={page === pages} onClick={() => setPage((x) => x + 1)}>
                 <ChevronRight />
               </button>
             </div>
@@ -1260,7 +1112,7 @@ function Products() {
           product={dialog === true ? undefined : dialog}
           onClose={() => setDialog(null)}
         />
-      )}{" "}
+      )}{' '}
       {remove && (
         <Confirm
           title="Delete product?"
@@ -1270,22 +1122,22 @@ function Products() {
         />
       )}
     </div>
-  );
+  )
 }
 
 function ProductDetail() {
-  const { id } = useParams();
-  const { data } = useApp();
-  const nav = useNavigate();
-  const [edit, setEdit] = useState(false);
-  const p = data.products.find((x) => x.id === id);
-  if (!p) return <NotFound />;
-  const inv = data.inventory.filter((i) => i.productId === p.id);
-  const ledger = data.ledger.filter((m) => m.productId === p.id);
-  const qty = inv.reduce((s, i) => s + i.quantity, 0);
+  const { id } = useParams()
+  const { data } = useApp()
+  const nav = useNavigate()
+  const [edit, setEdit] = useState(false)
+  const p = data.products.find((x) => x.id === id)
+  if (!p) return <NotFound />
+  const inv = data.inventory.filter((i) => i.productId === p.id)
+  const ledger = data.ledger.filter((m) => m.productId === p.id)
+  const qty = inv.reduce((s, i) => s + i.quantity, 0)
   return (
     <div className="page">
-      <button className="back-link" onClick={() => nav("/products")}>
+      <button className="back-link" onClick={() => nav('/products')}>
         <ChevronLeft /> Products
       </button>
       <PageHead
@@ -1338,11 +1190,7 @@ function ProductDetail() {
               }}
             />
           </div>
-          <small>
-            {qty <= p.reorderLevel
-              ? "Reorder recommended"
-              : "Healthy stock level"}
-          </small>
+          <small>{qty <= p.reorderLevel ? 'Reorder recommended' : 'Healthy stock level'}</small>
         </article>
       </section>
       <section className="panel">
@@ -1366,12 +1214,8 @@ function ProductDetail() {
             <tbody>
               {inv.map((i) => (
                 <tr key={i.id}>
-                  <td>
-                    {data.warehouses.find((w) => w.id === i.warehouseId)?.name}
-                  </td>
-                  <td>
-                    {data.locations.find((l) => l.id === i.locationId)?.name}
-                  </td>
+                  <td>{data.warehouses.find((w) => w.id === i.warehouseId)?.name}</td>
+                  <td>{data.locations.find((l) => l.id === i.locationId)?.name}</td>
                   <td>{i.quantity}</td>
                   <td>{i.reserved}</td>
                   <td>
@@ -1401,111 +1245,86 @@ function ProductDetail() {
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="balance"
-              stroke="#159a80"
-              strokeWidth={2}
-            />
+            <Line type="monotone" dataKey="balance" stroke="#159a80" strokeWidth={2} />
           </LineChart>
         </ResponsiveContainer>
       </section>
       {edit && <ProductDialog product={p} onClose={() => setEdit(false)} />}
     </div>
-  );
+  )
 }
 
-function OperationDialog({
-  type,
-  onClose,
-}: {
-  type: StockOperation["type"];
-  onClose: () => void;
-}) {
-  const { data, addOperation } = useApp();
-  const [warehouse, setWarehouse] = useState(data.warehouses[0].id);
+function OperationDialog({ type, onClose }: { type: StockOperation['type']; onClose: () => void }) {
+  const { data, addOperation } = useApp()
+  const [warehouse, setWarehouse] = useState(data.warehouses[0].id)
   const [location, setLocation] = useState(
     data.locations.find((l) => l.warehouseId === data.warehouses[0].id)!.id,
-  );
-  const [destWh, setDestWh] = useState(data.warehouses[1].id);
-  const [product, setProduct] = useState(data.products[0].id);
-  const [qty, setQty] = useState(1);
-  const [physical, setPhysical] = useState(0);
+  )
+  const [destWh, setDestWh] = useState(data.warehouses[1].id)
+  const [product, setProduct] = useState(data.products[0].id)
+  const [qty, setQty] = useState(1)
+  const [physical, setPhysical] = useState(0)
   const submit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const count = data.operations.filter((o) => o.type === type).length + 1;
+    e.preventDefault()
+    const form = e.currentTarget
+    const count = data.operations.filter((o) => o.type === type).length + 1
     addOperation({
       id: crypto.randomUUID(),
-      number: `${type === "Receipt" ? "REC" : type === "Delivery" ? "DEL" : type === "Transfer" ? "TRF" : "ADJ"}-${String(count).padStart(4, "0")}`,
+      number: `${type === 'Receipt' ? 'REC' : type === 'Delivery' ? 'DEL' : type === 'Transfer' ? 'TRF' : 'ADJ'}-${String(count).padStart(4, '0')}`,
       type,
-      party: form.party?.value || "Internal",
+      party: form.party?.value || 'Internal',
       warehouseId: warehouse,
       locationId: location,
-      destinationWarehouseId: type === "Transfer" ? destWh : undefined,
+      destinationWarehouseId: type === 'Transfer' ? destWh : undefined,
       destinationLocationId:
-        type === "Transfer"
-          ? data.locations.find((l) => l.warehouseId === destWh)?.id
-          : undefined,
+        type === 'Transfer' ? data.locations.find((l) => l.warehouseId === destWh)?.id : undefined,
       date: new Date().toISOString(),
-      status: "Draft",
+      status: 'Draft',
       reference: form.reference?.value,
       notes: form.notes?.value,
-      reason: type === "Adjustment" ? form.reason?.value : undefined,
+      reason: type === 'Adjustment' ? form.reason?.value : undefined,
       lines: [
         {
           id: crypto.randomUUID(),
           productId: product,
           quantity: qty,
-          processed: type === "Adjustment" ? physical : 0,
+          processed: type === 'Adjustment' ? physical : 0,
         },
       ],
       createdAt: new Date().toISOString(),
-    });
-    onClose();
-  };
+    })
+    onClose()
+  }
   const recorded = data.inventory
     .filter(
-      (i) =>
-        i.productId === product &&
-        i.warehouseId === warehouse &&
-        i.locationId === location,
+      (i) => i.productId === product && i.warehouseId === warehouse && i.locationId === location,
     )
-    .reduce((s, i) => s + i.quantity, 0);
+    .reduce((s, i) => s + i.quantity, 0)
   return (
     <Modal title={`New ${type.toLowerCase()}`} onClose={onClose} wide>
       <form onSubmit={submit}>
         <div className="modal-body form-grid">
-          {type !== "Transfer" && type !== "Adjustment" && (
+          {type !== 'Transfer' && type !== 'Adjustment' && (
             <label>
-              {type === "Receipt" ? "Supplier" : "Customer"}
+              {type === 'Receipt' ? 'Supplier' : 'Customer'}
               <input
                 name="party"
                 required
-                placeholder={
-                  type === "Receipt" ? "Atlas Steel" : "Northstar Retail"
-                }
+                placeholder={type === 'Receipt' ? 'Atlas Steel' : 'Northstar Retail'}
               />
             </label>
           )}
           <label>
-            {type === "Receipt"
-              ? "Destination"
-              : type === "Delivery"
-                ? "Source"
-                : "Warehouse"}
+            {type === 'Receipt' ? 'Destination' : type === 'Delivery' ? 'Source' : 'Warehouse'}
             <select
               value={warehouse}
               onChange={(e) => {
-                setWarehouse(e.target.value);
-                setLocation(
-                  data.locations.find((l) => l.warehouseId === e.target.value)!
-                    .id,
-                );
+                setWarehouse(e.target.value)
+                setLocation(data.locations.find((l) => l.warehouseId === e.target.value)!.id)
               }}
             >
               {data.warehouses
-                .filter((w) => w.status === "Active")
+                .filter((w) => w.status === 'Active')
                 .map((w) => (
                   <option value={w.id} key={w.id}>
                     {w.name}
@@ -1515,10 +1334,7 @@ function OperationDialog({
           </label>
           <label>
             Location
-            <select
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            >
+            <select value={location} onChange={(e) => setLocation(e.target.value)}>
               {data.locations
                 .filter((l) => l.warehouseId === warehouse)
                 .map((l) => (
@@ -1528,15 +1344,12 @@ function OperationDialog({
                 ))}
             </select>
           </label>
-          {type === "Transfer" && (
+          {type === 'Transfer' && (
             <label>
               Destination warehouse
-              <select
-                value={destWh}
-                onChange={(e) => setDestWh(e.target.value)}
-              >
+              <select value={destWh} onChange={(e) => setDestWh(e.target.value)}>
                 {data.warehouses
-                  .filter((w) => w.id !== warehouse && w.status === "Active")
+                  .filter((w) => w.id !== warehouse && w.status === 'Active')
                   .map((w) => (
                     <option value={w.id} key={w.id}>
                       {w.name}
@@ -1554,10 +1367,7 @@ function OperationDialog({
             <div className="line-grid">
               <label>
                 Product
-                <select
-                  value={product}
-                  onChange={(e) => setProduct(e.target.value)}
-                >
+                <select value={product} onChange={(e) => setProduct(e.target.value)}>
                   {data.products.map((p) => (
                     <option value={p.id} key={p.id}>
                       {p.name} · {p.sku}
@@ -1565,7 +1375,7 @@ function OperationDialog({
                   ))}
                 </select>
               </label>
-              {type === "Adjustment" ? (
+              {type === 'Adjustment' ? (
                 <>
                   <label>
                     Recorded quantity
@@ -1600,7 +1410,7 @@ function OperationDialog({
               )}
             </div>
           </div>
-          {type === "Adjustment" && (
+          {type === 'Adjustment' && (
             <label>
               Reason
               <select name="reason">
@@ -1628,31 +1438,31 @@ function OperationDialog({
         </footer>
       </form>
     </Modal>
-  );
+  )
 }
 
-function Operations({ type }: { type: StockOperation["type"] }) {
-  const { data, updateOperationStatus, validate } = useApp();
-  const [newOpen, setNewOpen] = useState(false);
-  const [q, setQ] = useState("");
-  const [status, setStatus] = useState("all");
-  const [error, setError] = useState("");
-  const [confirm, setConfirm] = useState<StockOperation | null>(null);
+function Operations({ type }: { type: StockOperation['type'] }) {
+  const { data, updateOperationStatus, validate } = useApp()
+  const [newOpen, setNewOpen] = useState(false)
+  const [q, setQ] = useState('')
+  const [status, setStatus] = useState('all')
+  const [error, setError] = useState('')
+  const [confirm, setConfirm] = useState<StockOperation | null>(null)
   const rows = data.operations
     .filter((o) => o.type === type)
     .filter((o) => (o.number + o.party).toLowerCase().includes(q.toLowerCase()))
-    .filter((o) => status === "all" || o.status === status);
+    .filter((o) => status === 'all' || o.status === status)
   const tryValidate = (o: StockOperation) => {
     try {
-      validate(o.id);
+      validate(o.id)
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Unable to validate");
+      setError(e instanceof Error ? e.message : 'Unable to validate')
     }
-  };
+  }
   return (
     <div className="page">
       <PageHead
-        title={type === "Delivery" ? "Delivery orders" : `${type}s`}
+        title={type === 'Delivery' ? 'Delivery orders' : `${type}s`}
         description={`Create, prepare, and validate ${type.toLowerCase()} operations.`}
         actions={
           <button className="button primary" onClick={() => setNewOpen(true)}>
@@ -1664,7 +1474,7 @@ function Operations({ type }: { type: StockOperation["type"] }) {
         <div className="error-banner">
           <AlertTriangle />
           {error}
-          <button onClick={() => setError("")}>
+          <button onClick={() => setError('')}>
             <X />
           </button>
         </div>
@@ -1680,16 +1490,16 @@ function Operations({ type }: { type: StockOperation["type"] }) {
         </div>
         <select value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="all">All statuses</option>
-          {["Draft", "Waiting", "Ready", "Done", "Cancelled"].map((s) => (
+          {['Draft', 'Waiting', 'Ready', 'Done', 'Cancelled'].map((s) => (
             <option key={s}>{s}</option>
           ))}
         </select>
-        {(q || status !== "all") && (
+        {(q || status !== 'all') && (
           <button
             className="button ghost"
             onClick={() => {
-              setQ("");
-              setStatus("all");
+              setQ('')
+              setStatus('all')
             }}
           >
             <X /> Clear
@@ -1703,11 +1513,7 @@ function Operations({ type }: { type: StockOperation["type"] }) {
               <tr>
                 <th>{type} #</th>
                 <th>
-                  {type === "Receipt"
-                    ? "Supplier"
-                    : type === "Delivery"
-                      ? "Customer"
-                      : "Route"}
+                  {type === 'Receipt' ? 'Supplier' : type === 'Delivery' ? 'Customer' : 'Route'}
                 </th>
                 <th>Warehouse</th>
                 <th>Products</th>
@@ -1722,25 +1528,20 @@ function Operations({ type }: { type: StockOperation["type"] }) {
                 <tr key={o.id}>
                   <td>
                     <b>{o.number}</b>
-                    <small className="cell-sub">
-                      {o.reference || "No reference"}
-                    </small>
+                    <small className="cell-sub">{o.reference || 'No reference'}</small>
                   </td>
                   <td>
-                    {type === "Transfer"
+                    {type === 'Transfer'
                       ? `${data.warehouses.find((w) => w.id === o.warehouseId)?.code} → ${data.warehouses.find((w) => w.id === o.destinationWarehouseId)?.code}`
-                      : type === "Adjustment"
+                      : type === 'Adjustment'
                         ? o.reason
                         : o.party}
                   </td>
-                  <td>
-                    {data.warehouses.find((w) => w.id === o.warehouseId)?.name}
-                  </td>
+                  <td>{data.warehouses.find((w) => w.id === o.warehouseId)?.name}</td>
                   <td>{o.lines.length}</td>
                   <td>
                     {o.lines.reduce(
-                      (s, l) =>
-                        s + (type === "Adjustment" ? l.processed : l.quantity),
+                      (s, l) => s + (type === 'Adjustment' ? l.processed : l.quantity),
                       0,
                     )}
                   </td>
@@ -1750,42 +1551,37 @@ function Operations({ type }: { type: StockOperation["type"] }) {
                   <td>{shortDate(o.date)}</td>
                   <td>
                     <div className="operation-actions">
-                      {o.status === "Draft" && (
+                      {o.status === 'Draft' && (
                         <button
                           className="button ghost small"
-                          onClick={() => updateOperationStatus(o.id, "Waiting")}
+                          onClick={() => updateOperationStatus(o.id, 'Waiting')}
                         >
                           Submit
                         </button>
                       )}
-                      {o.status === "Waiting" && (
+                      {o.status === 'Waiting' && (
                         <button
                           className="button ghost small"
-                          onClick={() => updateOperationStatus(o.id, "Ready")}
+                          onClick={() => updateOperationStatus(o.id, 'Ready')}
                         >
                           Mark ready
                         </button>
                       )}
-                      {o.status === "Ready" && (
-                        <button
-                          className="button primary small"
-                          onClick={() => setConfirm(o)}
-                        >
+                      {o.status === 'Ready' && (
+                        <button className="button primary small" onClick={() => setConfirm(o)}>
                           Validate
                         </button>
                       )}
-                      {o.status !== "Done" && o.status !== "Cancelled" && (
+                      {o.status !== 'Done' && o.status !== 'Cancelled' && (
                         <button
                           className="icon-button"
-                          onClick={() =>
-                            updateOperationStatus(o.id, "Cancelled")
-                          }
+                          onClick={() => updateOperationStatus(o.id, 'Cancelled')}
                           aria-label={`Cancel ${o.number}`}
                         >
                           <X />
                         </button>
                       )}
-                      {o.status === "Done" && (
+                      {o.status === 'Done' && (
                         <span className="completed">
                           <Check /> Completed
                         </span>
@@ -1804,57 +1600,55 @@ function Operations({ type }: { type: StockOperation["type"] }) {
           />
         )}
       </section>
-      {newOpen && (
-        <OperationDialog type={type} onClose={() => setNewOpen(false)} />
-      )}{" "}
+      {newOpen && <OperationDialog type={type} onClose={() => setNewOpen(false)} />}{' '}
       {confirm && (
         <Confirm
           title={`Validate ${confirm.number}?`}
-          body={`This will permanently update inventory and add entries to the stock ledger. ${type === "Transfer" ? "Total company stock will remain unchanged." : ""}`}
+          body={`This will permanently update inventory and add entries to the stock ledger. ${type === 'Transfer' ? 'Total company stock will remain unchanged.' : ''}`}
           onClose={() => setConfirm(null)}
           onConfirm={() => tryValidate(confirm)}
         />
       )}
     </div>
-  );
+  )
 }
 
 function Ledger() {
-  const { data } = useApp();
-  const nav = useNavigate();
-  const [q, setQ] = useState("");
-  const [type, setType] = useState("all");
+  const { data } = useApp()
+  const nav = useNavigate()
+  const [q, setQ] = useState('')
+  const [type, setType] = useState('all')
   const rows = data.ledger
     .filter((m) => {
-      const p = data.products.find((x) => x.id === m.productId);
-      return (m.reference + (p?.name || "") + (p?.sku || ""))
+      const p = data.products.find((x) => x.id === m.productId)
+      return (m.reference + (p?.name || '') + (p?.sku || ''))
         .toLowerCase()
-        .includes(q.toLowerCase());
+        .includes(q.toLowerCase())
     })
-    .filter((m) => type === "all" || m.type === type);
+    .filter((m) => type === 'all' || m.type === type)
   const exportCsv = () =>
     download(
-      "stocksense-ledger.csv",
+      'stocksense-ledger.csv',
       [
-        "Date,Reference,Type,Product,SKU,From,To,Quantity In,Quantity Out,Balance After",
+        'Date,Reference,Type,Product,SKU,From,To,Quantity In,Quantity Out,Balance After',
         ...rows.map((m) => {
-          const p = data.products.find((x) => x.id === m.productId);
+          const p = data.products.find((x) => x.id === m.productId)
           return [
             m.date,
             m.reference,
             m.type,
             p?.name,
             p?.sku,
-            m.fromWarehouseId || "",
-            m.toWarehouseId || "",
+            m.fromWarehouseId || '',
+            m.toWarehouseId || '',
             m.quantityIn,
             m.quantityOut,
             m.balanceAfter,
-          ].join(",");
+          ].join(',')
         }),
-      ].join("\n"),
-      "text/csv",
-    );
+      ].join('\n'),
+      'text/csv',
+    )
   return (
     <div className="page">
       <PageHead
@@ -1877,13 +1671,7 @@ function Ledger() {
         </div>
         <select value={type} onChange={(e) => setType(e.target.value)}>
           <option value="all">All movement types</option>
-          {[
-            "Receipt",
-            "Delivery",
-            "Transfer",
-            "Adjustment",
-            "Initial Stock",
-          ].map((t) => (
+          {['Receipt', 'Delivery', 'Transfer', 'Adjustment', 'Initial Stock'].map((t) => (
             <option key={t}>{t}</option>
           ))}
         </select>
@@ -1907,15 +1695,15 @@ function Ledger() {
             </thead>
             <tbody>
               {rows.map((m) => {
-                const p = data.products.find((x) => x.id === m.productId);
+                const p = data.products.find((x) => x.id === m.productId)
                 return (
                   <tr key={m.id}>
                     <td>
                       {shortDate(m.date)}
                       <small className="cell-sub">
                         {new Date(m.date).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
+                          hour: '2-digit',
+                          minute: '2-digit',
                         })}
                       </small>
                     </td>
@@ -1936,64 +1724,45 @@ function Ledger() {
                     </td>
                     <td>{place(data, m.fromWarehouseId, m.fromLocationId)}</td>
                     <td>{place(data, m.toWarehouseId, m.toLocationId)}</td>
-                    <td className="qty-in">
-                      {m.quantityIn ? `+${m.quantityIn}` : "—"}
-                    </td>
-                    <td className="qty-out">
-                      {m.quantityOut ? `−${m.quantityOut}` : "—"}
-                    </td>
+                    <td className="qty-in">{m.quantityIn ? `+${m.quantityIn}` : '—'}</td>
+                    <td className="qty-out">{m.quantityOut ? `−${m.quantityOut}` : '—'}</td>
                     <td>
                       <b>{m.balanceAfter}</b>
                     </td>
-                    <td>Alex Morgan</td>
+                    <td>Adithri</td>
                   </tr>
-                );
+                )
               })}
             </tbody>
           </table>
         </div>
       </section>
     </div>
-  );
+  )
 }
-function place(
-  data: ReturnType<typeof useApp>["data"],
-  w?: string,
-  l?: string,
-) {
-  if (!w) return "—";
+function place(data: ReturnType<typeof useApp>['data'], w?: string, l?: string) {
+  if (!w) return '—'
   return (
     <>
       {data.warehouses.find((x) => x.id === w)?.name}
-      <small className="cell-sub">
-        {data.locations.find((x) => x.id === l)?.name}
-      </small>
+      <small className="cell-sub">{data.locations.find((x) => x.id === l)?.name}</small>
     </>
-  );
+  )
 }
 function MoveHistory() {
-  const { data } = useApp();
-  const [q, setQ] = useState("");
+  const { data } = useApp()
+  const [q, setQ] = useState('')
   const rows = data.ledger.filter((m) => {
-    const p = data.products.find((x) => x.id === m.productId);
-    return ((p?.name || "") + m.reference)
-      .toLowerCase()
-      .includes(q.toLowerCase());
-  });
+    const p = data.products.find((x) => x.id === m.productId)
+    return ((p?.name || '') + m.reference).toLowerCase().includes(q.toLowerCase())
+  })
   return (
     <div className="page">
-      <PageHead
-        title="Move history"
-        description="A simplified timeline of stock movement."
-      />
+      <PageHead title="Move history" description="A simplified timeline of stock movement." />
       <div className="toolbar">
         <div className="input-with-icon">
           <Search />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search moves…"
-          />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search moves…" />
         </div>
       </div>
       <section className="panel timeline">
@@ -2005,11 +1774,11 @@ function MoveHistory() {
             <div>
               <h3>{data.products.find((p) => p.id === m.productId)?.name}</h3>
               <p>
-                {placeText(data, m.fromWarehouseId, m.fromLocationId)} →{" "}
+                {placeText(data, m.fromWarehouseId, m.fromLocationId)} →{' '}
                 {placeText(data, m.toWarehouseId, m.toLocationId)}
               </p>
               <small>
-                {m.reference} · Alex Morgan · {ago(m.date)}
+                {m.reference} · Adithri · {ago(m.date)}
               </small>
             </div>
             <b>{m.quantityIn ? `+${m.quantityIn}` : `−${m.quantityOut}`}</b>
@@ -2017,38 +1786,29 @@ function MoveHistory() {
         ))}
       </section>
     </div>
-  );
+  )
 }
-const placeText = (
-  data: ReturnType<typeof useApp>["data"],
-  w?: string,
-  l?: string,
-) =>
+const placeText = (data: ReturnType<typeof useApp>['data'], w?: string, l?: string) =>
   w
-    ? `${data.warehouses.find((x) => x.id === w)?.code}/${data.locations.find((x) => x.id === l)?.name || "—"}`
-    : "External";
+    ? `${data.warehouses.find((x) => x.id === w)?.code}/${data.locations.find((x) => x.id === l)?.name || '—'}`
+    : 'External'
 
 function Categories() {
-  const { data, upsertCategory } = useApp();
-  const [name, setName] = useState("");
+  const { data, upsertCategory } = useApp()
+  const [name, setName] = useState('')
   const stats = data.categories.map((c) => {
-    const ps = data.products.filter((p) => p.categoryId === c.id);
-    const inv = data.inventory.filter((i) =>
-      ps.some((p) => p.id === i.productId),
-    );
+    const ps = data.products.filter((p) => p.categoryId === c.id)
+    const inv = data.inventory.filter((i) => ps.some((p) => p.id === i.productId))
     return {
       c,
       count: ps.length,
       qty: inv.reduce((s, i) => s + i.quantity, 0),
       value: inv.reduce(
-        (s, i) =>
-          s +
-          i.quantity *
-            (data.products.find((p) => p.id === i.productId)?.cost || 0),
+        (s, i) => s + i.quantity * (data.products.find((p) => p.id === i.productId)?.cost || 0),
         0,
       ),
-    };
-  });
+    }
+  })
   return (
     <div className="page">
       <PageHead
@@ -2058,10 +1818,10 @@ function Categories() {
       <form
         className="inline-create"
         onSubmit={(e) => {
-          e.preventDefault();
+          e.preventDefault()
           if (name.trim()) {
-            upsertCategory({ id: crypto.randomUUID(), name: name.trim() });
-            setName("");
+            upsertCategory({ id: crypto.randomUUID(), name: name.trim() })
+            setName('')
           }
         }}
       >
@@ -2100,25 +1860,17 @@ function Categories() {
         ))}
       </section>
     </div>
-  );
+  )
 }
 function StockByLocation() {
-  const { data } = useApp();
-  const [warehouse, setWarehouse] = useState("all");
-  const rows = data.inventory.filter(
-    (i) => warehouse === "all" || i.warehouseId === warehouse,
-  );
+  const { data } = useApp()
+  const [warehouse, setWarehouse] = useState('all')
+  const rows = data.inventory.filter((i) => warehouse === 'all' || i.warehouseId === warehouse)
   return (
     <div className="page">
-      <PageHead
-        title="Stock by location"
-        description="See exactly where every unit is stored."
-      />
+      <PageHead title="Stock by location" description="See exactly where every unit is stored." />
       <div className="toolbar">
-        <select
-          value={warehouse}
-          onChange={(e) => setWarehouse(e.target.value)}
-        >
+        <select value={warehouse} onChange={(e) => setWarehouse(e.target.value)}>
           <option value="all">All warehouses</option>
           {data.warehouses.map((w) => (
             <option value={w.id} key={w.id}>
@@ -2143,7 +1895,7 @@ function StockByLocation() {
             </thead>
             <tbody>
               {rows.map((i) => {
-                const p = data.products.find((x) => x.id === i.productId);
+                const p = data.products.find((x) => x.id === i.productId)
                 return (
                   <tr key={i.id}>
                     <td>
@@ -2152,37 +1904,28 @@ function StockByLocation() {
                     <td>
                       <code>{p?.sku}</code>
                     </td>
-                    <td>
-                      {
-                        data.warehouses.find((w) => w.id === i.warehouseId)
-                          ?.name
-                      }
-                    </td>
-                    <td>
-                      {data.locations.find((l) => l.id === i.locationId)?.name}
-                    </td>
+                    <td>{data.warehouses.find((w) => w.id === i.warehouseId)?.name}</td>
+                    <td>{data.locations.find((l) => l.id === i.locationId)?.name}</td>
                     <td>{i.quantity}</td>
                     <td>{i.reserved}</td>
                     <td>
                       <b>{i.quantity - i.reserved}</b>
                     </td>
                   </tr>
-                );
+                )
               })}
             </tbody>
           </table>
         </div>
       </section>
     </div>
-  );
+  )
 }
 
 function WarehousesPage() {
-  const { data, upsertWarehouse, archiveWarehouse } = useApp();
-  const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<
-    (typeof data.warehouses)[number] | undefined
-  >();
+  const { data, upsertWarehouse, archiveWarehouse } = useApp()
+  const [open, setOpen] = useState(false)
+  const [editing, setEditing] = useState<(typeof data.warehouses)[number] | undefined>()
   return (
     <div className="page">
       <PageHead
@@ -2192,8 +1935,8 @@ function WarehousesPage() {
           <button
             className="button primary"
             onClick={() => {
-              setEditing(undefined);
-              setOpen(true);
+              setEditing(undefined)
+              setOpen(true)
             }}
           >
             <Plus /> Add warehouse
@@ -2204,7 +1947,7 @@ function WarehousesPage() {
         {data.warehouses.map((w) => {
           const units = data.inventory
             .filter((i) => i.warehouseId === w.id)
-            .reduce((s, i) => s + i.quantity, 0);
+            .reduce((s, i) => s + i.quantity, 0)
           return (
             <article className="panel warehouse-card" key={w.id}>
               <div className="warehouse-top">
@@ -2226,12 +1969,7 @@ function WarehousesPage() {
                 </div>
                 <div>
                   <dt>Locations</dt>
-                  <dd>
-                    {
-                      data.locations.filter((l) => l.warehouseId === w.id)
-                        .length
-                    }
-                  </dd>
+                  <dd>{data.locations.filter((l) => l.warehouseId === w.id).length}</dd>
                 </div>
                 <div>
                   <dt>Units</dt>
@@ -2242,13 +1980,13 @@ function WarehousesPage() {
                 <button
                   className="button ghost small"
                   onClick={() => {
-                    setEditing(w);
-                    setOpen(true);
+                    setEditing(w)
+                    setOpen(true)
                   }}
                 >
                   Edit
                 </button>
-                {w.status === "Active" && (
+                {w.status === 'Active' && (
                   <button
                     className="text-button danger-text"
                     onClick={() => archiveWarehouse(w.id)}
@@ -2258,43 +1996,39 @@ function WarehousesPage() {
                 )}
               </footer>
             </article>
-          );
+          )
         })}
       </section>
       {open && (
-        <WarehouseDialog
-          value={editing}
-          onClose={() => setOpen(false)}
-          save={upsertWarehouse}
-        />
+        <WarehouseDialog value={editing} onClose={() => setOpen(false)} save={upsertWarehouse} />
       )}
     </div>
-  );
+  )
 }
 function WarehouseDialog({
   value,
   onClose,
   save,
 }: {
-  value?: ReturnType<typeof useApp>["data"]["warehouses"][number];
-  onClose: () => void;
-  save: ReturnType<typeof useApp>["upsertWarehouse"];
+  value?: ReturnType<typeof useApp>['data']['warehouses'][number]
+  onClose: () => void
+  save: ReturnType<typeof useApp>['upsertWarehouse']
 }) {
   const submit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const f = new FormData(e.currentTarget);
+    e.preventDefault()
+    const f = new FormData(e.currentTarget)
     save({
       id: value?.id || crypto.randomUUID(),
-      name: String(f.get("name")),
-      code: String(f.get("code")).toUpperCase(),
-      address: String(f.get("address")),
-      manager: String(f.get("manager")),
-      status: value?.status || "Active",
-    });
-    onClose();
-  };
+      name: String(f.get('name')),
+      code: String(f.get('code')).toUpperCase(),
+      address: String(f.get('address')),
+      manager: String(f.get('manager')),
+      status: value?.status || 'Active',
+    })
+    onClose()
+  }
   return (
-    <Modal title={value ? "Edit warehouse" : "Add warehouse"} onClose={onClose}>
+    <Modal title={value ? 'Edit warehouse' : 'Add warehouse'} onClose={onClose}>
       <form onSubmit={submit}>
         <div className="modal-body form-grid one">
           <label>
@@ -2322,11 +2056,11 @@ function WarehouseDialog({
         </footer>
       </form>
     </Modal>
-  );
+  )
 }
 function LocationsPage() {
-  const { data, upsertLocation } = useApp();
-  const [open, setOpen] = useState(false);
+  const { data, upsertLocation } = useApp()
+  const [open, setOpen] = useState(false)
   return (
     <div className="page">
       <PageHead
@@ -2354,7 +2088,7 @@ function LocationsPage() {
             </thead>
             <tbody>
               {data.locations.map((l) => {
-                const inv = data.inventory.filter((i) => i.locationId === l.id);
+                const inv = data.inventory.filter((i) => i.locationId === l.id)
                 return (
                   <tr key={l.id}>
                     <td>
@@ -2363,20 +2097,15 @@ function LocationsPage() {
                     <td>
                       <code>{l.code}</code>
                     </td>
-                    <td>
-                      {
-                        data.warehouses.find((w) => w.id === l.warehouseId)
-                          ?.name
-                      }
-                    </td>
+                    <td>{data.warehouses.find((w) => w.id === l.warehouseId)?.name}</td>
                     <td>{new Set(inv.map((i) => i.productId)).size}</td>
                     <td>{inv.reduce((s, i) => s + i.quantity, 0)}</td>
-                    <td>{l.capacity || "—"}</td>
+                    <td>{l.capacity || '—'}</td>
                     <td>
                       <span className={statusClass(l.status)}>{l.status}</span>
                     </td>
                   </tr>
-                );
+                )
               })}
             </tbody>
           </table>
@@ -2386,17 +2115,17 @@ function LocationsPage() {
         <Modal title="Add location" onClose={() => setOpen(false)}>
           <form
             onSubmit={(e) => {
-              e.preventDefault();
-              const f = new FormData(e.currentTarget);
+              e.preventDefault()
+              const f = new FormData(e.currentTarget)
               upsertLocation({
                 id: crypto.randomUUID(),
-                name: String(f.get("name")),
-                code: String(f.get("code")).toUpperCase(),
-                warehouseId: String(f.get("warehouse")),
-                capacity: Number(f.get("capacity")),
-                status: "Active",
-              });
-              setOpen(false);
+                name: String(f.get('name')),
+                code: String(f.get('code')).toUpperCase(),
+                warehouseId: String(f.get('warehouse')),
+                capacity: Number(f.get('capacity')),
+                status: 'Active',
+              })
+              setOpen(false)
             }}
           >
             <div className="modal-body form-grid one">
@@ -2424,11 +2153,7 @@ function LocationsPage() {
               </label>
             </div>
             <footer className="modal-actions">
-              <button
-                type="button"
-                className="button ghost"
-                onClick={() => setOpen(false)}
-              >
+              <button type="button" className="button ghost" onClick={() => setOpen(false)}>
                 Cancel
               </button>
               <button className="button primary">Add location</button>
@@ -2437,58 +2162,41 @@ function LocationsPage() {
         </Modal>
       )}
     </div>
-  );
+  )
 }
 
 function Analytics() {
-  const { data } = useApp();
-  const [days, setDays] = useState(30);
+  const { data } = useApp()
+  const [days, setDays] = useState(30)
   const [focus, setFocus] = useState<{
-    group: "category" | "warehouse" | "product";
-    label: string;
-    value: number;
-  } | null>(null);
-  const choose = (
-    group: "category" | "warehouse" | "product",
-    label: string,
-    value: number,
-  ) =>
+    group: 'category' | 'warehouse' | 'product'
+    label: string
+    value: number
+  } | null>(null)
+  const choose = (group: 'category' | 'warehouse' | 'product', label: string, value: number) =>
     setFocus((current) =>
-      current?.group === group && current.label === label
-        ? null
-        : { group, label, value },
-    );
-  const cutoff = Date.now() - days * 86400000;
-  const ledger = data.ledger.filter(
-    (m) => new Date(m.date).getTime() >= cutoff,
-  );
+      current?.group === group && current.label === label ? null : { group, label, value },
+    )
+  const cutoff = Date.now() - days * 86400000
+  const ledger = data.ledger.filter((m) => new Date(m.date).getTime() >= cutoff)
   const byCategory = data.categories.map((c) => ({
     name: c.name,
     value: data.inventory
-      .filter(
-        (i) =>
-          data.products.find((p) => p.id === i.productId)?.categoryId === c.id,
-      )
+      .filter((i) => data.products.find((p) => p.id === i.productId)?.categoryId === c.id)
       .reduce(
-        (s, i) =>
-          s +
-          i.quantity *
-            (data.products.find((p) => p.id === i.productId)?.cost || 0),
+        (s, i) => s + i.quantity * (data.products.find((p) => p.id === i.productId)?.cost || 0),
         0,
       ),
-  }));
+  }))
   const byWarehouse = data.warehouses.map((w) => ({
     name: w.code,
     value: data.inventory
       .filter((i) => i.warehouseId === w.id)
       .reduce(
-        (s, i) =>
-          s +
-          i.quantity *
-            (data.products.find((p) => p.id === i.productId)?.cost || 0),
+        (s, i) => s + i.quantity * (data.products.find((p) => p.id === i.productId)?.cost || 0),
         0,
       ),
-  }));
+  }))
   const movers = data.products
     .map((p) => ({
       name: p.name,
@@ -2497,16 +2205,8 @@ function Analytics() {
         .reduce((s, m) => s + m.quantityIn + m.quantityOut, 0),
     }))
     .sort((a, b) => b.value - a.value)
-    .slice(0, 7);
-  const colors = [
-    "#0f9d7a",
-    "#3b82f6",
-    "#f59e0b",
-    "#8b5cf6",
-    "#ef5da8",
-    "#06b6d4",
-    "#64748b",
-  ];
+    .slice(0, 7)
+  const colors = ['#0f9d7a', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef5da8', '#06b6d4', '#64748b']
   return (
     <div className="page">
       <PageHead
@@ -2516,23 +2216,20 @@ function Analytics() {
           <div className="segmented">
             {[7, 30, 90, 365].map((d) => (
               <button
-                className={days === d ? "active" : ""}
+                className={days === d ? 'active' : ''}
                 onClick={() => {
-                  setDays(d);
-                  setFocus(null);
+                  setDays(d)
+                  setFocus(null)
                 }}
                 key={d}
               >
-                {d === 365 ? "1 year" : `${d} days`}
+                {d === 365 ? '1 year' : `${d} days`}
               </button>
             ))}
           </div>
         }
       />
-      <div
-        className={`analytics-focus ${focus ? "visible" : ""}`}
-        aria-live="polite"
-      >
+      <div className={`analytics-focus ${focus ? 'visible' : ''}`} aria-live="polite">
         {focus ? (
           <>
             <span className={`focus-dot ${focus.group}`} />
@@ -2541,7 +2238,7 @@ function Analytics() {
               <b>{focus.label}</b>
             </span>
             <strong>
-              {focus.group === "product"
+              {focus.group === 'product'
                 ? `${number.format(focus.value)} units moved`
                 : money.format(focus.value)}
             </strong>
@@ -2568,33 +2265,28 @@ function Analytics() {
                 dataKey="value"
                 nameKey="name"
                 innerRadius={70}
-                 outerRadius={105}
-                 paddingAngle={2}
-                 isAnimationActive
-                 animationDuration={650}
-                 animationEasing="ease-out"
-               >
+                outerRadius={105}
+                paddingAngle={2}
+                isAnimationActive
+                animationDuration={650}
+                animationEasing="ease-out"
+              >
                 {byCategory.map((category, i) => (
                   <Cell
                     key={category.name}
                     fill={colors[i % colors.length]}
                     opacity={
-                      !focus ||
-                      focus.group !== "category" ||
-                      focus.label === category.name
+                      !focus || focus.group !== 'category' || focus.label === category.name
                         ? 1
                         : 0.24
                     }
                     stroke={
-                      focus?.group === "category" &&
-                      focus.label === category.name
+                      focus?.group === 'category' && focus.label === category.name
                         ? colors[i % colors.length]
-                        : "transparent"
+                        : 'transparent'
                     }
                     strokeWidth={4}
-                    onClick={() =>
-                      choose("category", category.name, category.value)
-                    }
+                    onClick={() => choose('category', category.name, category.value)}
                   />
                 ))}
               </Pie>
@@ -2605,12 +2297,8 @@ function Analytics() {
             {byCategory.map((x, i) => (
               <button
                 key={x.name}
-                className={
-                  focus?.group === "category" && focus.label === x.name
-                    ? "active"
-                    : ""
-                }
-                onClick={() => choose("category", x.name, x.value)}
+                className={focus?.group === 'category' && focus.label === x.name ? 'active' : ''}
+                onClick={() => choose('category', x.name, x.value)}
               >
                 <i style={{ background: colors[i % colors.length] }} />
                 {x.name}
@@ -2643,15 +2331,11 @@ function Analytics() {
                     key={warehouse.name}
                     fill={colors[i % colors.length]}
                     opacity={
-                      !focus ||
-                      focus.group !== "warehouse" ||
-                      focus.label === warehouse.name
+                      !focus || focus.group !== 'warehouse' || focus.label === warehouse.name
                         ? 1
                         : 0.24
                     }
-                    onClick={() =>
-                      choose("warehouse", warehouse.name, warehouse.value)
-                    }
+                    onClick={() => choose('warehouse', warehouse.name, warehouse.value)}
                   />
                 ))}
               </Bar>
@@ -2683,15 +2367,9 @@ function Analytics() {
                     key={product.name}
                     fill={colors[i % colors.length]}
                     opacity={
-                      !focus ||
-                      focus.group !== "product" ||
-                      focus.label === product.name
-                        ? 1
-                        : 0.24
+                      !focus || focus.group !== 'product' || focus.label === product.name ? 1 : 0.24
                     }
-                    onClick={() =>
-                      choose("product", product.name, product.value)
-                    }
+                    onClick={() => choose('product', product.name, product.value)}
                   />
                 ))}
               </Bar>
@@ -2700,10 +2378,10 @@ function Analytics() {
         </article>
       </section>
     </div>
-  );
+  )
 }
 function Notifications() {
-  const { data, markNotification } = useApp();
+  const { data, markNotification } = useApp()
   return (
     <div className="page">
       <PageHead
@@ -2719,11 +2397,11 @@ function Notifications() {
         {data.notifications.map((n) => (
           <button
             key={n.id}
-            className={!n.read ? "unread" : ""}
+            className={!n.read ? 'unread' : ''}
             onClick={() => markNotification(n.id)}
           >
             <span className={`note-icon ${n.kind}`}>
-              {n.kind === "success" ? <Check /> : <AlertTriangle />}
+              {n.kind === 'success' ? <Check /> : <AlertTriangle />}
             </span>
             <span>
               <b>{n.title}</b>
@@ -2735,25 +2413,21 @@ function Notifications() {
         ))}
       </section>
     </div>
-  );
+  )
 }
 function SettingsPage() {
-  const { reset, exportData, importData } = useApp();
-  const [confirm, setConfirm] = useState(false);
-  const [theme, setTheme] = useState(
-    localStorage.getItem("stocksense-theme") || "light",
-  );
-  const [message, setMessage] = useState("");
+  const { reset, exportData, importData } = useApp()
+  const [confirm, setConfirm] = useState(false)
+  const [theme, setTheme] = useState(localStorage.getItem('stocksense-theme') || 'light')
+  const [message, setMessage] = useState('')
   const upload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]
     if (file)
       file
         .text()
         .then(importData)
-        .catch(() =>
-          setMessage("The selected file is not valid StockSense data."),
-        );
-  };
+        .catch(() => setMessage('The selected file is not valid StockSense data.'))
+  }
   return (
     <div className="page">
       <PageHead
@@ -2801,23 +2475,23 @@ function SettingsPage() {
             <p>Choose how StockSense looks on this device.</p>
             <div className="theme-options">
               {[
-                ["light", Sun],
-                ["dark", Moon],
-                ["system", CircleUserRound],
+                ['light', Sun],
+                ['dark', Moon],
+                ['system', CircleUserRound],
               ].map(([x, Icon]) => (
                 <button
-                  className={theme === x ? "active" : ""}
+                  className={theme === x ? 'active' : ''}
                   key={String(x)}
                   onClick={() => {
-                    setTheme(String(x));
+                    setTheme(String(x))
                     const v =
-                      x === "system"
-                        ? matchMedia("(prefers-color-scheme: dark)").matches
-                          ? "dark"
-                          : "light"
-                        : String(x);
-                    localStorage.setItem("stocksense-theme", v);
-                    document.documentElement.dataset.theme = v;
+                      x === 'system'
+                        ? matchMedia('(prefers-color-scheme: dark)').matches
+                          ? 'dark'
+                          : 'light'
+                        : String(x)
+                    localStorage.setItem('stocksense-theme', v)
+                    document.documentElement.dataset.theme = v
                   }}
                 >
                   <Icon />
@@ -2830,10 +2504,10 @@ function SettingsPage() {
             <h2>Notifications</h2>
             <p>Choose the events that need your attention.</p>
             {[
-              "Low stock alerts",
-              "Out-of-stock alerts",
-              "Pending operations",
-              "Completed operations",
+              'Low stock alerts',
+              'Out-of-stock alerts',
+              'Pending operations',
+              'Completed operations',
             ].map((x, i) => (
               <label className="switch-row" key={x}>
                 <span>
@@ -2851,28 +2525,16 @@ function SettingsPage() {
               <button
                 className="button ghost"
                 onClick={() =>
-                  download(
-                    "stocksense-demo-data.json",
-                    exportData(),
-                    "application/json",
-                  )
+                  download('stocksense-demo-data.json', exportData(), 'application/json')
                 }
               >
                 <Download /> Export demo data
               </button>
               <label className="button ghost">
                 <Upload /> Import demo data
-                <input
-                  type="file"
-                  accept="application/json"
-                  onChange={upload}
-                  hidden
-                />
+                <input type="file" accept="application/json" onChange={upload} hidden />
               </label>
-              <button
-                className="button danger"
-                onClick={() => setConfirm(true)}
-              >
+              <button className="button danger" onClick={() => setConfirm(true)}>
                 <RefreshCw /> Reset demo data
               </button>
             </div>
@@ -2888,18 +2550,15 @@ function SettingsPage() {
         />
       )}
     </div>
-  );
+  )
 }
 function Profile() {
-  const { data } = useApp();
-  const [saved, setSaved] = useState(false);
-  const user = data.users[0];
+  const { data } = useApp()
+  const [saved, setSaved] = useState(false)
+  const user = data.users[0]
   return (
     <div className="page">
-      <PageHead
-        title="Profile"
-        description="Your account and workspace preferences."
-      />
+      <PageHead title="Profile" description="Your account and workspace preferences." />
       {saved && (
         <div className="success-banner">
           <Check /> Profile preferences saved locally.
@@ -2907,7 +2566,7 @@ function Profile() {
       )}
       <section className="profile-layout">
         <article className="panel profile-card">
-          <span className="big-avatar">AM</span>
+          <span className="big-avatar">A</span>
           <h2>{user.name}</h2>
           <p>{user.email}</p>
           <span className={statusClass(user.role)}>{user.role}</span>
@@ -2946,59 +2605,54 @@ function Profile() {
         </article>
       </section>
     </div>
-  );
+  )
 }
 function NotFound() {
-  const nav = useNavigate();
+  const nav = useNavigate()
   return (
     <div className="page">
       <div className="empty full-page">
         <Package />
         <h1>Page not found</h1>
         <p>The page you requested does not exist.</p>
-        <button className="button primary" onClick={() => nav("/")}>
+        <button className="button primary" onClick={() => nav('/')}>
           Back to overview
         </button>
       </div>
     </div>
-  );
+  )
 }
 function download(name: string, content: string, type: string) {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(url);
+  const blob = new Blob([content], { type })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = name
+  a.click()
+  URL.revokeObjectURL(url)
 }
 function AppRoutes() {
-  const { authenticated } = useApp();
-  const location = useLocation();
+  const { authenticated } = useApp()
+  const location = useLocation()
   if (
     !authenticated &&
-    !["/login", "/signup", "/forgot-password", "/reset-password"].includes(
-      location.pathname,
-    )
+    !['/login', '/signup', '/forgot-password', '/reset-password'].includes(location.pathname)
   )
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace />
   return (
     <Routes>
       <Route path="/login" element={<Auth />} />
       <Route path="/signup" element={<Auth />} />
       <Route path="/forgot-password" element={<Auth />} />
       <Route path="/reset-password" element={<Auth />} />
-      <Route
-        path="/*"
-        element={authenticated ? <Shell /> : <Navigate to="/login" replace />}
-      />
+      <Route path="/*" element={authenticated ? <Shell /> : <Navigate to="/login" replace />} />
     </Routes>
-  );
+  )
 }
 export default function App() {
   return (
     <AppStore>
       <AppRoutes />
     </AppStore>
-  );
+  )
 }

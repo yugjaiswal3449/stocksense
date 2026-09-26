@@ -28,7 +28,7 @@ export function createSeedData(): AppData {
       name: 'Main Warehouse',
       code: 'MAIN',
       address: '12 Industrial Avenue',
-      manager: 'Alex Morgan',
+      manager: 'Adithri',
       status: 'Active',
     },
     {
@@ -206,7 +206,7 @@ export function createSeedData(): AppData {
     users: [
       {
         id: 'user-001',
-        name: 'Alex Morgan',
+        name: 'Adithri',
         email: 'admin@stocksense.demo',
         role: 'Admin',
         warehouseId: 'wh-001',
