@@ -2443,6 +2443,21 @@ function LocationsPage() {
 function Analytics() {
   const { data } = useApp();
   const [days, setDays] = useState(30);
+  const [focus, setFocus] = useState<{
+    group: "category" | "warehouse" | "product";
+    label: string;
+    value: number;
+  } | null>(null);
+  const choose = (
+    group: "category" | "warehouse" | "product",
+    label: string,
+    value: number,
+  ) =>
+    setFocus((current) =>
+      current?.group === group && current.label === label
+        ? null
+        : { group, label, value },
+    );
   const cutoff = Date.now() - days * 86400000;
   const ledger = data.ledger.filter(
     (m) => new Date(m.date).getTime() >= cutoff,
@@ -2502,7 +2517,10 @@ function Analytics() {
             {[7, 30, 90, 365].map((d) => (
               <button
                 className={days === d ? "active" : ""}
-                onClick={() => setDays(d)}
+                onClick={() => {
+                  setDays(d);
+                  setFocus(null);
+                }}
                 key={d}
               >
                 {d === 365 ? "1 year" : `${d} days`}
@@ -2511,6 +2529,30 @@ function Analytics() {
           </div>
         }
       />
+      <div
+        className={`analytics-focus ${focus ? "visible" : ""}`}
+        aria-live="polite"
+      >
+        {focus ? (
+          <>
+            <span className={`focus-dot ${focus.group}`} />
+            <span>
+              <small>Focused {focus.group}</small>
+              <b>{focus.label}</b>
+            </span>
+            <strong>
+              {focus.group === "product"
+                ? `${number.format(focus.value)} units moved`
+                : money.format(focus.value)}
+            </strong>
+            <button onClick={() => setFocus(null)} aria-label="Clear chart focus">
+              <X />
+            </button>
+          </>
+        ) : (
+          <span className="focus-placeholder">Select any chart value to inspect it</span>
+        )}
+      </div>
       <section className="analytics-grid">
         <article className="panel">
           <div className="panel-head">
@@ -2526,11 +2568,34 @@ function Analytics() {
                 dataKey="value"
                 nameKey="name"
                 innerRadius={70}
-                outerRadius={105}
-                paddingAngle={2}
-              >
-                {byCategory.map((_, i) => (
-                  <Cell key={i} fill={colors[i % colors.length]} />
+                 outerRadius={105}
+                 paddingAngle={2}
+                 isAnimationActive
+                 animationDuration={650}
+                 animationEasing="ease-out"
+               >
+                {byCategory.map((category, i) => (
+                  <Cell
+                    key={category.name}
+                    fill={colors[i % colors.length]}
+                    opacity={
+                      !focus ||
+                      focus.group !== "category" ||
+                      focus.label === category.name
+                        ? 1
+                        : 0.24
+                    }
+                    stroke={
+                      focus?.group === "category" &&
+                      focus.label === category.name
+                        ? colors[i % colors.length]
+                        : "transparent"
+                    }
+                    strokeWidth={4}
+                    onClick={() =>
+                      choose("category", category.name, category.value)
+                    }
+                  />
                 ))}
               </Pie>
               <Tooltip formatter={(v) => money.format(Number(v))} />
@@ -2538,10 +2603,18 @@ function Analytics() {
           </ResponsiveContainer>
           <div className="chart-legend">
             {byCategory.map((x, i) => (
-              <span key={x.name}>
+              <button
+                key={x.name}
+                className={
+                  focus?.group === "category" && focus.label === x.name
+                    ? "active"
+                    : ""
+                }
+                onClick={() => choose("category", x.name, x.value)}
+              >
                 <i style={{ background: colors[i % colors.length] }} />
                 {x.name}
-              </span>
+              </button>
             ))}
           </div>
         </article>
@@ -2558,11 +2631,27 @@ function Analytics() {
               <XAxis dataKey="name" />
               <YAxis tickFormatter={(v) => `₹${Math.round(v / 1000)}k`} />
               <Tooltip formatter={(v) => money.format(Number(v))} />
-              <Bar dataKey="value" radius={[5, 5, 0, 0]}>
+              <Bar
+                dataKey="value"
+                radius={[5, 5, 0, 0]}
+                isAnimationActive
+                animationDuration={650}
+                animationEasing="ease-out"
+              >
                 {byWarehouse.map((warehouse, i) => (
                   <Cell
                     key={warehouse.name}
                     fill={colors[i % colors.length]}
+                    opacity={
+                      !focus ||
+                      focus.group !== "warehouse" ||
+                      focus.label === warehouse.name
+                        ? 1
+                        : 0.24
+                    }
+                    onClick={() =>
+                      choose("warehouse", warehouse.name, warehouse.value)
+                    }
                   />
                 ))}
               </Bar>
@@ -2582,11 +2671,27 @@ function Analytics() {
               <XAxis type="number" />
               <YAxis dataKey="name" type="category" width={120} />
               <Tooltip />
-              <Bar dataKey="value" radius={[0, 5, 5, 0]}>
+              <Bar
+                dataKey="value"
+                radius={[0, 5, 5, 0]}
+                isAnimationActive
+                animationDuration={650}
+                animationEasing="ease-out"
+              >
                 {movers.map((product, i) => (
                   <Cell
                     key={product.name}
                     fill={colors[i % colors.length]}
+                    opacity={
+                      !focus ||
+                      focus.group !== "product" ||
+                      focus.label === product.name
+                        ? 1
+                        : 0.24
+                    }
+                    onClick={() =>
+                      choose("product", product.name, product.value)
+                    }
                   />
                 ))}
               </Bar>

@@ -1016,6 +1016,88 @@ code {
   grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
+.analytics-focus {
+  min-height: 44px;
+  margin: -12px 0 14px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--muted);
+  transition:
+    background 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+.analytics-focus.visible {
+  background: var(--surface);
+  border-color: var(--line);
+  box-shadow: 0 5px 18px rgba(15, 39, 34, 0.05);
+  animation: focus-in 240ms ease-out;
+}
+.analytics-focus > span:nth-child(2) {
+  display: grid;
+  gap: 1px;
+}
+.analytics-focus small {
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.analytics-focus b {
+  color: var(--ink);
+  font-size: 13px;
+}
+.analytics-focus strong {
+  margin-left: auto;
+  color: var(--ink);
+  font-size: 14px;
+}
+.analytics-focus button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  padding: 5px;
+  border-radius: 6px;
+}
+.analytics-focus button:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.focus-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #0f9d7a;
+  box-shadow: 0 0 0 4px color-mix(in srgb, #0f9d7a 16%, transparent);
+}
+.focus-dot.warehouse {
+  background: #3b82f6;
+  box-shadow: 0 0 0 4px color-mix(in srgb, #3b82f6 16%, transparent);
+}
+.focus-dot.product {
+  background: #f59e0b;
+  box-shadow: 0 0 0 4px color-mix(in srgb, #f59e0b 16%, transparent);
+}
+.focus-placeholder {
+  font-size: 12px;
+}
+.recharts-sector,
+.recharts-rectangle {
+  cursor: pointer;
+  transition:
+    opacity 220ms ease,
+    filter 220ms ease;
+}
+.recharts-sector:hover,
+.recharts-rectangle:hover {
+  filter: brightness(1.06) saturate(1.08);
+}
 .analytics-grid .span-two {
   grid-column: 1/-1;
 }
@@ -1046,10 +1128,26 @@ code {
   font-size: 11px;
   color: var(--muted);
 }
-.chart-legend span {
+.chart-legend button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 4px 6px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   gap: 5px;
+}
+.chart-legend button:hover,
+.chart-legend button.active {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+@keyframes focus-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
 }
 .notifications-list {
   padding: 0;
